@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Clinometer</string>
+
+    <string name="no_sensor">This device has no accelerometer, so it can\'t measure tilt.</string>
+    <string name="waiting_for_sensor">Reading sensor…</string>
+    <string name="hold_still">Hold still…</string>
+    <string name="on_target">On target</string>
+    <string name="too_flat">%1$.1f° too flat</string>
+    <string name="too_steep">%1$.1f° too steep</string>
+    <string name="target_summary">Target %1$d° ± %2$s°</string>
+
+    <string name="target">Target</string>
+    <string name="calibrate">Calibrate</string>
+    <string name="sound_on">Sound on</string>
+    <string name="sound_off">Sound off</string>
+    <string name="tolerance_button">± %1$s°</string>
+
+    <string name="calibrate_title">Calibrate zero</string>
+    <string name="calibrate_body">Lay the phone screen-up on a level surface (the floor, or the bench set flat), resting the same way you\'ll put it on the bench. Tap Calibrate, then don\'t touch the phone for 3 seconds.\n\nThis cancels out the tilt from a camera bump or case.</string>
+    <string name="calibrate_current_offset">Current zero offset: %1$.1f°</string>
+    <string name="calibrate_not_calibrated">Not calibrated: measuring relative to the phone\'s back.</string>
+    <string name="reset">Reset</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="calibration_done">Zero set</string>
+    <string name="calibration_not_flat">Phone isn\'t lying flat. Put it on a level surface and try again.</string>
+    <string name="calibration_moved">Phone moved during calibration. Try again without touching it.</string>
+    <string name="calibration_no_data">No sensor data. Try again.</string>
+</resources>
