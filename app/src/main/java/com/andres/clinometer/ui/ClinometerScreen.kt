@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,14 +15,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -41,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -56,8 +60,7 @@ import com.andres.clinometer.R
 import com.andres.clinometer.Settings
 import com.andres.clinometer.UiState
 import com.andres.clinometer.ui.theme.ClinometerTheme
-import com.andres.clinometer.ui.theme.OnOnTargetGreen
-import com.andres.clinometer.ui.theme.OnTargetGreen
+import com.andres.clinometer.ui.theme.customColors
 import java.util.Locale
 import kotlin.math.abs
 
@@ -147,13 +150,15 @@ fun ClinometerContent(
 @Composable
 private fun ReadingPanel(state: UiState, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
+    val custom = MaterialTheme.customColors
     val onTarget = state.onTarget
-    val container by animateColorAsState(if (onTarget) OnTargetGreen else scheme.surfaceContainerHigh, label = "container")
-    val content by animateColorAsState(if (onTarget) OnOnTargetGreen else scheme.onSurface, label = "content")
-    val needle by animateColorAsState(if (onTarget) OnOnTargetGreen else scheme.primary, label = "needle")
-    val target by animateColorAsState(if (onTarget) OnOnTargetGreen else scheme.tertiary, label = "target")
+    val container by animateColorAsState(if (onTarget) custom.success else scheme.surfaceContainerHigh, label = "container")
+    val content by animateColorAsState(if (onTarget) custom.onSuccess else scheme.onSurface, label = "content")
+    val contentVariant by animateColorAsState(if (onTarget) custom.onSuccess else scheme.onSurfaceVariant, label = "contentVariant")
+    val needle by animateColorAsState(if (onTarget) custom.onSuccess else scheme.primary, label = "needle")
+    val target by animateColorAsState(if (onTarget) custom.onSuccess else scheme.tertiary, label = "target")
 
-    Surface(modifier, shape = RoundedCornerShape(28.dp), color = container, contentColor = content) {
+    Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = container, contentColor = content) {
         Column(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -181,7 +186,7 @@ private fun ReadingPanel(state: UiState, modifier: Modifier = Modifier) {
                     formatTolerance(state.settings.toleranceDeg),
                 ),
                 style = MaterialTheme.typography.bodyMedium,
-                color = content.copy(alpha = 0.75f),
+                color = contentVariant,
             )
         }
     }
@@ -222,7 +227,7 @@ private fun statusText(state: UiState): String {
 
 @Composable
 private fun TargetPanel(targetDeg: Int, onTargetChange: (Int) -> Unit, modifier: Modifier = Modifier) {
-    Surface(modifier, shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
+    Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainer) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -233,7 +238,7 @@ private fun TargetPanel(targetDeg: Int, onTargetChange: (Int) -> Unit, modifier:
                 FilledTonalIconButton(
                     onClick = { onTargetChange(targetDeg - 1) },
                     enabled = targetDeg > MIN_TARGET,
-                ) { Text("−", style = MaterialTheme.typography.titleLarge) }
+                ) { Icon(painterResource(R.drawable.ic_remove), stringResource(R.string.decrease_target)) }
                 Text(
                     text = "$targetDeg°",
                     style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "tnum"),
@@ -243,22 +248,18 @@ private fun TargetPanel(targetDeg: Int, onTargetChange: (Int) -> Unit, modifier:
                 FilledTonalIconButton(
                     onClick = { onTargetChange(targetDeg + 1) },
                     enabled = targetDeg < MAX_TARGET,
-                ) { Text("+", style = MaterialTheme.typography.titleLarge) }
+                ) { Icon(painterResource(R.drawable.ic_add), stringResource(R.string.increase_target)) }
             }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                PRESETS.forEach { preset ->
-                    val selected = preset == targetDeg
-                    Surface(
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                PRESETS.forEachIndexed { index, preset ->
+                    SegmentedButton(
+                        selected = preset == targetDeg,
                         onClick = { onTargetChange(preset) },
-                        shape = RoundedCornerShape(12.dp),
-                        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest,
-                        contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f).height(48.dp),
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text("$preset°", style = MaterialTheme.typography.labelLarge, maxLines = 1)
-                        }
-                    }
+                        shape = SegmentedButtonDefaults.itemShape(index, PRESETS.size),
+                        // Seven segments leave no room for the checkmark or the default padding.
+                        icon = {},
+                        contentPadding = PaddingValues(horizontal = 2.dp),
+                    ) { Text("$preset°", maxLines = 1, softWrap = false) }
                 }
             }
         }
@@ -290,7 +291,7 @@ private fun CalibrationDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onCalibrate(); onDismiss() }) { Text(stringResource(R.string.calibrate)) }
+            TextButton(onClick = { onCalibrate(); onDismiss() }) { Text(stringResource(R.string.calibrate)) }
         },
         dismissButton = {
             Row {

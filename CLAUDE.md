@@ -6,7 +6,7 @@ The constraints, toolchain and commands shared with the other Kotlin projects ar
 
 ## Constraints
 
-- `minSdk = 31` is required because `ClinometerTheme` calls `dynamic*ColorScheme` without a fallback.
+- `minSdk = 31` is required because `ClinometerTheme` calls `dynamic*ColorScheme` without a fallback, and the window theme's background uses the `system_neutral1_*` palette.
 ## Commands
 
 ```sh
