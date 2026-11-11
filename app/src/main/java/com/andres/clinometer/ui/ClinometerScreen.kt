@@ -2,7 +2,7 @@ package com.andres.clinometer.ui
 
 import android.media.AudioManager
 import android.media.ToneGenerator
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -41,6 +41,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
@@ -151,12 +152,13 @@ fun ClinometerContent(
 private fun ReadingPanel(state: UiState, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
     val custom = MaterialTheme.customColors
-    val onTarget = state.onTarget
-    val container by animateColorAsState(if (onTarget) custom.success else scheme.surfaceContainerHigh, label = "container")
-    val content by animateColorAsState(if (onTarget) custom.onSuccess else scheme.onSurface, label = "content")
-    val contentVariant by animateColorAsState(if (onTarget) custom.onSuccess else scheme.onSurfaceVariant, label = "contentVariant")
-    val needle by animateColorAsState(if (onTarget) custom.onSuccess else scheme.primary, label = "needle")
-    val target by animateColorAsState(if (onTarget) custom.onSuccess else scheme.tertiary, label = "target")
+    // One animation drives every colour: off target at 0, on target at 1.
+    val f by animateFloatAsState(if (state.onTarget) 1f else 0f, label = "onTarget")
+    val container = lerp(scheme.surfaceContainerHigh, custom.success, f)
+    val content = lerp(scheme.onSurface, custom.onSuccess, f)
+    val contentVariant = lerp(scheme.onSurfaceVariant, custom.onSuccess, f)
+    val needle = lerp(scheme.primary, custom.onSuccess, f)
+    val target = lerp(scheme.tertiary, custom.onSuccess, f)
 
     Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = container, contentColor = content) {
         Column(
@@ -259,7 +261,7 @@ private fun TargetPanel(targetDeg: Int, onTargetChange: (Int) -> Unit, modifier:
                         // Seven segments leave no room for the checkmark or the default padding.
                         icon = {},
                         contentPadding = PaddingValues(horizontal = 2.dp),
-                    ) { Text("$preset°", maxLines = 1, softWrap = false) }
+                    ) { Text("$preset°", softWrap = false) }
                 }
             }
         }

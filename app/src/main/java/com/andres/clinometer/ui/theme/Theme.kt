@@ -6,7 +6,6 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -22,7 +21,6 @@ import androidx.compose.ui.platform.LocalContext
  *   seed `#1E8E3E`: 40 in light theme, 80 in dark.
  * @property onSuccess text and drawing on [success]: tone 100 in light theme, 20 in dark.
  */
-@Immutable
 data class CustomColors(val success: Color, val onSuccess: Color)
 
 private val LightCustomColors = CustomColors(success = Color(0xFF006E2A), onSuccess = Color(0xFFFFFFFF))

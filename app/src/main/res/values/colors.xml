@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Near the dynamic scheme's light background (tone 98). -->
-    <color name="window_background">@android:color/system_neutral1_10</color>
+    <!-- API 31–33: the dynamic light background is neutral-variant tone 98, which no system
+         resource has; this is tone 99 of the same palette. values-v34 has the exact colour. -->
+    <color name="window_background">@android:color/system_neutral2_10</color>
 </resources>
