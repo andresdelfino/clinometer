@@ -6,7 +6,7 @@ The constraints, toolchain and commands shared with the other Kotlin projects ar
 
 ## Constraints
 
-- `minSdk = 31` is required because `ClinometerTheme` calls `dynamic*ColorScheme` without a fallback, and below API 34 the window theme's background uses the `system_neutral2_*` palette.
+- Android 16 is the only supported version: `minSdk = 36`, the same as `targetSdk`. Don't add version checks, `-vNN` resource qualifiers or fallbacks for other versions.
 ## Commands
 
 ```sh
