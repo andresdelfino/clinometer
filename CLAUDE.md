@@ -6,7 +6,7 @@ The constraints, toolchain and commands shared with the other Kotlin projects ar
 
 ## Constraints
 
-- Android 16 is the only supported version: `minSdk = 36`, the same as `targetSdk`. Don't add version checks, `-vNN` resource qualifiers or fallbacks for other versions.
+- Android 17 is the only supported version: `minSdk = 37`, the same as `targetSdk`. Don't add version checks, `-vNN` resource qualifiers or fallbacks for other versions.
 ## Commands
 
 ```sh

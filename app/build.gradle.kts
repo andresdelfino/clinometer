@@ -5,14 +5,13 @@ plugins {
 
 android {
     namespace = "com.andres.clinometer"
-    // Current AndroidX/Compose releases need SDK 37 headers to compile; the
-    // app still targets (and behaves as) an Android 16 / API 36 app.
     compileSdk = 37
 
     defaultConfig {
         applicationId = "com.andres.clinometer"
-        minSdk = 36
-        targetSdk = 36
+        // Android 17 is the only version supported.
+        minSdk = 37
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
     }
