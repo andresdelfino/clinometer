@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Only the window before Compose draws, and the splash screen, which takes its colour from
-         windowBackground. Everything after that is the Compose Material 3 theme. Light or dark as
-         the system is set, painted with the dynamic scheme's background (see colors.xml) so there's
-         no flash on cold start. -->
+    <!-- The window before Compose draws, and the splash screen, which takes its colour from
+         windowBackground; everything inside the window after that is the Compose Material 3 theme.
+         Light or dark as the system is set, like that theme: painted with the dynamic scheme's
+         background (see colors.xml) so there's no flash on cold start, and with system-bar icons
+         that suit its brightness for as long as the activity runs. -->
     <style name="Theme.Clinometer" parent="android:Theme.DeviceDefault.DayNight">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:windowLightStatusBar">?android:attr/isLightTheme</item>
+        <item name="android:windowLightNavigationBar">?android:attr/isLightTheme</item>
     </style>
 </resources>

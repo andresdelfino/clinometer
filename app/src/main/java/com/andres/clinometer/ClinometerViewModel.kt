@@ -48,7 +48,12 @@ enum class CalibrationResult(@StringRes val messageRes: Int) {
 }
 
 class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
-    private val prefs = app.getSharedPreferences("clinometer", Context.MODE_PRIVATE)
+    private val prefs = app.getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE)
+
+    // Kept apart from the rest of the settings because it describes this phone (its camera bump,
+    // its case), so it's left out of backups (see res/xml/data_extraction_rules.xml).
+    private val calibrationPrefs = app.getSharedPreferences(PREFS_CALIBRATION, Context.MODE_PRIVATE)
+
     private val sensor = TiltSensor(app)
 
     val sensorAvailable: Boolean = sensor.isAvailable
@@ -121,6 +126,8 @@ class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
             putInt(KEY_TARGET, s.targetDeg)
             putFloat(KEY_TOLERANCE, s.toleranceDeg.toFloat())
             putBoolean(KEY_BEEP, s.beep)
+        }
+        calibrationPrefs.edit {
             putFloat(KEY_REF_X, s.reference.x.toFloat())
             putFloat(KEY_REF_Y, s.reference.y.toFloat())
             putFloat(KEY_REF_Z, s.reference.z.toFloat())
@@ -130,9 +137,9 @@ class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
     private fun loadSettings(): Settings {
         val defaults = Settings()
         val reference = Vec3(
-            prefs.getFloat(KEY_REF_X, 0f).toDouble(),
-            prefs.getFloat(KEY_REF_Y, 0f).toDouble(),
-            prefs.getFloat(KEY_REF_Z, 1f).toDouble(),
+            calibrationPrefs.getFloat(KEY_REF_X, 0f).toDouble(),
+            calibrationPrefs.getFloat(KEY_REF_Y, 0f).toDouble(),
+            calibrationPrefs.getFloat(KEY_REF_Z, 1f).toDouble(),
         )
         return Settings(
             targetDeg = prefs.getInt(KEY_TARGET, defaults.targetDeg).coerceIn(MIN_TARGET, MAX_TARGET),
@@ -153,6 +160,10 @@ class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
         private const val MIN_CALIBRATION_SAMPLES = 10
         private const val MAX_CALIBRATION_WOBBLE_DEG = 0.5
         private const val MAX_CALIBRATION_OFFSET_DEG = 20.0
+
+        // res/xml/data_extraction_rules.xml backs up the settings by file name: "clinometer.xml".
+        private const val PREFS_SETTINGS = "clinometer"
+        private const val PREFS_CALIBRATION = "calibration"
 
         private const val KEY_TARGET = "target"
         private const val KEY_TOLERANCE = "tolerance"

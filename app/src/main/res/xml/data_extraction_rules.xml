@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only the settings (target, tolerance, sound). The calibration, in calibration.xml, describes
+     this phone, its camera bump and its case, and would skew every reading on another one. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="sharedpref" path="clinometer.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="sharedpref" path="clinometer.xml" />
+    </device-transfer>
+</data-extraction-rules>
