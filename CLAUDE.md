@@ -6,7 +6,7 @@ The constraints, toolchain and commands shared with the other Kotlin projects ar
 
 ## Constraints
 
-- Android 17 is the only supported version: `minSdk` and `targetSdk` are both 37. Call the platform API directly, with no `Build.VERSION` checks, `*Compat` wrappers (`ContextCompat`, `WindowCompat`), backports such as `enableEdgeToEdge`, versioned resource folders (`-v34`), or fallbacks for other releases.
+- Android 17 is the only supported version: `compileSdk`, `minSdk` and `targetSdk` are all 37, and `buildToolsVersion` is 37.0.0. Call the platform API directly, with no `Build.VERSION` checks, `*Compat` wrappers (`ContextCompat`, `WindowCompat`), backports such as `enableEdgeToEdge`, versioned resource folders (`-v34`), or fallbacks for other releases.
 - The UI is Material 3 (`androidx.compose.material3`, version from the Compose BOM), coloured by the dynamic (wallpaper) scheme with no brand fallback, since Android 17 always has it. The one exception is the fixed `success` green in `ui/theme/Theme.kt`, which has to read as "on target" whatever the wallpaper. Use M3 components and the default type scale rather than hand-rolled controls or bundled fonts. Any icons are Material Symbols vector drawables in `res/drawable`, not the `material-icons` libraries.
 
 ## Commands
