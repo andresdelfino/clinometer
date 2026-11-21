@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -258,9 +257,6 @@ private fun TargetPanel(targetDeg: Int, onTargetChange: (Int) -> Unit, modifier:
                         selected = preset == targetDeg,
                         onClick = { onTargetChange(preset) },
                         shape = SegmentedButtonDefaults.itemShape(index, PRESETS.size),
-                        // Seven segments leave no room for the checkmark or the default padding.
-                        icon = {},
-                        contentPadding = PaddingValues(horizontal = 2.dp),
                     ) { Text("$preset°", softWrap = false) }
                 }
             }

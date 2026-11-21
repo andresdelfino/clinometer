@@ -152,7 +152,7 @@ class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
     companion object {
         const val MIN_TARGET = 0
         const val MAX_TARGET = 90
-        val PRESETS = listOf(0, 15, 30, 45, 60, 75, 90)
+        val PRESETS = listOf(30, 45, 70)
         val TOLERANCES = listOf(0.5, 1.0, 2.0)
 
         private const val CALIBRATION_SETTLE_MS = 1000L
