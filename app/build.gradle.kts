@@ -3,6 +3,11 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+// APKs are named clinometer-<buildType>.apk instead of app-<buildType>.apk.
+base {
+    archivesName = "clinometer"
+}
+
 android {
     namespace = "com.andres.clinometer"
     compileSdk = 37
