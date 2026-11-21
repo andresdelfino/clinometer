@@ -1,7 +1,5 @@
 package com.andres.clinometer.ui
 
-import android.media.AudioManager
-import android.media.ToneGenerator
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +32,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -72,7 +68,6 @@ fun ClinometerScreen(viewModel: ClinometerViewModel) {
     val resources = LocalResources.current
 
     KeepScreenOn()
-    TargetBeeper(onTarget = state.onTarget, enabled = state.settings.beep)
 
     LaunchedEffect(viewModel) {
         viewModel.calibrationResults.collect { result ->
@@ -85,7 +80,6 @@ fun ClinometerScreen(viewModel: ClinometerViewModel) {
         sensorAvailable = viewModel.sensorAvailable,
         snackbarHostState = snackbarHostState,
         onTargetChange = viewModel::setTarget,
-        onToggleBeep = viewModel::toggleBeep,
         onToleranceChange = viewModel::setTolerance,
         onCalibrate = viewModel::calibrate,
         onResetCalibration = viewModel::resetCalibration,
@@ -98,7 +92,6 @@ fun ClinometerContent(
     sensorAvailable: Boolean,
     snackbarHostState: SnackbarHostState,
     onTargetChange: (Int) -> Unit,
-    onToggleBeep: () -> Unit,
     onToleranceChange: (Double) -> Unit,
     onCalibrate: () -> Unit,
     onResetCalibration: () -> Unit,
@@ -128,16 +121,11 @@ fun ClinometerContent(
                 onToleranceChange = onToleranceChange,
                 modifier = Modifier.fillMaxWidth(),
             )
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(
-                    onClick = { showCalibrationDialog = true },
-                    enabled = !state.calibrating,
-                    modifier = Modifier.weight(1f),
-                ) { Text(stringResource(R.string.calibrate)) }
-                FilledTonalButton(onClick = onToggleBeep, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(if (state.settings.beep) R.string.sound_on else R.string.sound_off))
-                }
-            }
+            OutlinedButton(
+                onClick = { showCalibrationDialog = true },
+                enabled = !state.calibrating,
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text(stringResource(R.string.calibrate)) }
         }
     }
 
@@ -337,17 +325,6 @@ private fun KeepScreenOn() {
     }
 }
 
-/** Plays a short double beep each time the reading enters the target band. */
-@Composable
-private fun TargetBeeper(onTarget: Boolean, enabled: Boolean) {
-    val currentEnabled by rememberUpdatedState(enabled)
-    val tone = remember { runCatching { ToneGenerator(AudioManager.STREAM_MUSIC, 90) }.getOrNull() }
-    DisposableEffect(tone) { onDispose { tone?.release() } }
-    LaunchedEffect(onTarget) {
-        if (onTarget && currentEnabled) tone?.startTone(ToneGenerator.TONE_PROP_ACK, 250)
-    }
-}
-
 private fun formatAngle(deg: Double?): String =
     deg?.let { String.format(Locale.getDefault(), "%.1f°", it) } ?: "––.–°"
 
@@ -361,7 +338,7 @@ private fun PreviewAdjusting() = ClinometerTheme {
         state = UiState(tiltDeg = 27.6, settings = Settings(targetDeg = 30)),
         sensorAvailable = true,
         snackbarHostState = remember { SnackbarHostState() },
-        onTargetChange = {}, onToggleBeep = {}, onToleranceChange = {}, onCalibrate = {}, onResetCalibration = {},
+        onTargetChange = {}, onToleranceChange = {}, onCalibrate = {}, onResetCalibration = {},
     )
 }
 
@@ -372,7 +349,7 @@ private fun PreviewOnTarget() = ClinometerTheme(darkTheme = true) {
         state = UiState(tiltDeg = 45.3, settings = Settings(targetDeg = 45), onTarget = true),
         sensorAvailable = true,
         snackbarHostState = remember { SnackbarHostState() },
-        onTargetChange = {}, onToggleBeep = {}, onToleranceChange = {}, onCalibrate = {}, onResetCalibration = {},
+        onTargetChange = {}, onToleranceChange = {}, onCalibrate = {}, onResetCalibration = {},
     )
 }
 

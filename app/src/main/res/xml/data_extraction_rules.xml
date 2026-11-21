@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Only the settings (target, tolerance, sound). The calibration, in calibration.xml, describes
+<!-- Only the settings (target and tolerance). The calibration, in calibration.xml, describes
      this phone, its camera bump and its case, and would skew every reading on another one. -->
 <data-extraction-rules>
     <cloud-backup>

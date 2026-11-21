@@ -21,7 +21,7 @@ There are no instrumented (`androidTest`) tests.
 
 ## Architecture
 
-This is a single-activity Jetpack Compose app for setting an incline, such as a weight bench's back pad. The phone lies screen-up on the pad and the app shows the angle against a target. The activity is portrait-locked, the screen stays on, and a tone plays each time the reading enters the target band.
+This is a single-activity Jetpack Compose app for setting an incline, such as a weight bench's back pad. The phone lies screen-up on the pad and the app shows the angle against a target. The activity is portrait-locked and the screen stays on.
 
 The app is edge-to-edge because Android 17 enforces it, not because of any call. The window theme (`res/values/themes.xml`) sets the system-bar icons to suit the system's brightness (`?android:attr/isLightTheme`), which the Compose theme follows too, so no code changes them.
 
@@ -31,9 +31,9 @@ Data flows one way:
 2. **`ClinometerViewModel`** (an `AndroidViewModel`) combines gravity, `Settings` and the calibrating flag into `UiState`. Details:
    - It uses `scan`, not `map`, because the on-target check has hysteresis and depends on the previous `onTarget`.
    - Both flows use `SharingStarted.WhileSubscribed(0, 0)`, so the sensor unregisters as soon as the UI stops collecting, and a stale reading is never replayed.
-   - `Settings` are written to SharedPreferences on every `updateSettings` call: target, tolerance and sound to `"clinometer"`, which is backed up, and the calibration reference to `"calibration"`, which isn't, because it describes this phone (`res/xml/data_extraction_rules.xml`).
+   - `Settings` are written to SharedPreferences on every `updateSettings` call: target and tolerance to `"clinometer"`, which is backed up, and the calibration reference to `"calibration"`, which isn't, because it describes this phone (`res/xml/data_extraction_rules.xml`).
    - Calibration results go through a `Channel` and appear as snackbars.
-3. **`ui/ClinometerScreen`**: `ClinometerScreen` is the stateful wrapper that owns the ViewModel, the beeper and keep-screen-on. `ClinometerContent` is stateless and is what the `@Preview`s render. `AngleGauge` is a hand-drawn Canvas protractor (0–90°, side view of the bench).
+3. **`ui/ClinometerScreen`**: `ClinometerScreen` is the stateful wrapper that owns the ViewModel and keep-screen-on. `ClinometerContent` is stateless and is what the `@Preview`s render. `AngleGauge` is a hand-drawn Canvas protractor (0–90°, side view of the bench).
 
 **Tilt model (`TiltMath.kt`):** the incline is the angle between the current gravity vector and a reference gravity vector stored in the phone's own frame. The reference is captured by calibrating on a level surface; the default is `Vec3.SCREEN_UP`, and "calibrated" means `reference != SCREEN_UP`. Because both vectors are in the phone's frame, the reading doesn't change when the phone is rotated on the pad, and a fixed offset such as a camera bump or case cancels out.
 

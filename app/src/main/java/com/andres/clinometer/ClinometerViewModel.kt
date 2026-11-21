@@ -24,7 +24,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 data class Settings(
     val targetDeg: Int = 30,
     val toleranceDeg: Double = 1.0,
-    val beep: Boolean = true,
     /** Gravity direction (unit vector, phone frame) measured on a level surface. */
     val reference: Vec3 = Vec3.SCREEN_UP,
 ) {
@@ -81,8 +80,6 @@ class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setTarget(deg: Int) = updateSettings { it.copy(targetDeg = deg.coerceIn(MIN_TARGET, MAX_TARGET)) }
 
-    fun toggleBeep() = updateSettings { it.copy(beep = !it.beep) }
-
     fun setTolerance(deg: Double) = updateSettings { it.copy(toleranceDeg = deg) }
 
     fun resetCalibration() = updateSettings { it.copy(reference = Vec3.SCREEN_UP) }
@@ -122,7 +119,6 @@ class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
         prefs.edit {
             putInt(KEY_TARGET, s.targetDeg)
             putFloat(KEY_TOLERANCE, s.toleranceDeg.toFloat())
-            putBoolean(KEY_BEEP, s.beep)
         }
         calibrationPrefs.edit {
             putFloat(KEY_REF_X, s.reference.x.toFloat())
@@ -143,7 +139,6 @@ class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
             // A value saved before the options changed (such as 0.5) falls back to the default.
             toleranceDeg = prefs.getFloat(KEY_TOLERANCE, defaults.toleranceDeg.toFloat()).toDouble()
                 .takeIf { it in TOLERANCES } ?: defaults.toleranceDeg,
-            beep = prefs.getBoolean(KEY_BEEP, defaults.beep),
             reference = if (reference.length > 0.5) reference else Vec3.SCREEN_UP,
         )
     }
@@ -166,7 +161,6 @@ class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
 
         private const val KEY_TARGET = "target"
         private const val KEY_TOLERANCE = "tolerance"
-        private const val KEY_BEEP = "beep"
         private const val KEY_REF_X = "ref_x"
         private const val KEY_REF_Y = "ref_y"
         private const val KEY_REF_Z = "ref_z"

@@ -16,8 +16,6 @@
     <string name="tolerance">Tolerance</string>
     <string name="tolerance_option">± %1$s°</string>
     <string name="calibrate">Calibrate</string>
-    <string name="sound_on">Sound on</string>
-    <string name="sound_off">Sound off</string>
 
     <string name="calibrate_title">Calibrate zero</string>
     <string name="calibrate_body">Lay the phone screen-up on a level surface (the floor, or the bench set flat), resting the same way you\'ll put it on the bench. Tap Calibrate, then don\'t touch the phone for 3 seconds.\n\nThis cancels out the tilt from a camera bump or case.</string>
