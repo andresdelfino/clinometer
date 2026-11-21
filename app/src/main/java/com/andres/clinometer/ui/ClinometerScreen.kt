@@ -11,10 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -40,7 +37,6 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,8 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.andres.clinometer.ClinometerViewModel
-import com.andres.clinometer.ClinometerViewModel.Companion.MAX_TARGET
-import com.andres.clinometer.ClinometerViewModel.Companion.MIN_TARGET
 import com.andres.clinometer.ClinometerViewModel.Companion.PRESETS
 import com.andres.clinometer.ClinometerViewModel.Companion.TOLERANCES
 import com.andres.clinometer.R
@@ -228,27 +222,7 @@ private fun TargetPanel(
 ) {
     Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainer) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    stringResource(R.string.target),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f),
-                )
-                FilledTonalIconButton(
-                    onClick = { onTargetChange(targetDeg - 1) },
-                    enabled = targetDeg > MIN_TARGET,
-                ) { Icon(painterResource(R.drawable.ic_remove), stringResource(R.string.decrease_target)) }
-                Text(
-                    text = "$targetDeg°",
-                    style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "tnum"),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.widthIn(min = 80.dp),
-                )
-                FilledTonalIconButton(
-                    onClick = { onTargetChange(targetDeg + 1) },
-                    enabled = targetDeg < MAX_TARGET,
-                ) { Icon(painterResource(R.drawable.ic_add), stringResource(R.string.increase_target)) }
-            }
+            Text(stringResource(R.string.target), style = MaterialTheme.typography.titleMedium)
             ChoiceRow(PRESETS, targetDeg, onTargetChange) { "$it°" }
             Text(stringResource(R.string.tolerance), style = MaterialTheme.typography.titleMedium)
             ChoiceRow(TOLERANCES, toleranceDeg, onToleranceChange) {

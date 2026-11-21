@@ -11,8 +11,6 @@
     <string name="target_summary">Target %1$d° ± %2$s°</string>
 
     <string name="target">Target</string>
-    <string name="decrease_target">Decrease target</string>
-    <string name="increase_target">Increase target</string>
     <string name="tolerance">Tolerance</string>
     <string name="tolerance_option">± %1$s°</string>
     <string name="calibrate">Calibrate</string>
