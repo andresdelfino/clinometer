@@ -83,10 +83,7 @@ class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
 
     fun toggleBeep() = updateSettings { it.copy(beep = !it.beep) }
 
-    fun cycleTolerance() = updateSettings { s ->
-        val next = TOLERANCES.firstOrNull { it > s.toleranceDeg } ?: TOLERANCES.first()
-        s.copy(toleranceDeg = next)
-    }
+    fun setTolerance(deg: Double) = updateSettings { it.copy(toleranceDeg = deg) }
 
     fun resetCalibration() = updateSettings { it.copy(reference = Vec3.SCREEN_UP) }
 

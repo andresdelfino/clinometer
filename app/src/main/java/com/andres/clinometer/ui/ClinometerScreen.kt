@@ -56,6 +56,7 @@ import com.andres.clinometer.ClinometerViewModel
 import com.andres.clinometer.ClinometerViewModel.Companion.MAX_TARGET
 import com.andres.clinometer.ClinometerViewModel.Companion.MIN_TARGET
 import com.andres.clinometer.ClinometerViewModel.Companion.PRESETS
+import com.andres.clinometer.ClinometerViewModel.Companion.TOLERANCES
 import com.andres.clinometer.R
 import com.andres.clinometer.Settings
 import com.andres.clinometer.UiState
@@ -85,7 +86,7 @@ fun ClinometerScreen(viewModel: ClinometerViewModel) {
         snackbarHostState = snackbarHostState,
         onTargetChange = viewModel::setTarget,
         onToggleBeep = viewModel::toggleBeep,
-        onCycleTolerance = viewModel::cycleTolerance,
+        onToleranceChange = viewModel::setTolerance,
         onCalibrate = viewModel::calibrate,
         onResetCalibration = viewModel::resetCalibration,
     )
@@ -98,7 +99,7 @@ fun ClinometerContent(
     snackbarHostState: SnackbarHostState,
     onTargetChange: (Int) -> Unit,
     onToggleBeep: () -> Unit,
-    onCycleTolerance: () -> Unit,
+    onToleranceChange: (Double) -> Unit,
     onCalibrate: () -> Unit,
     onResetCalibration: () -> Unit,
 ) {
@@ -120,7 +121,13 @@ fun ClinometerContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             ReadingPanel(state, Modifier.fillMaxWidth().weight(1f))
-            TargetPanel(state.settings.targetDeg, onTargetChange, Modifier.fillMaxWidth())
+            TargetPanel(
+                targetDeg = state.settings.targetDeg,
+                toleranceDeg = state.settings.toleranceDeg,
+                onTargetChange = onTargetChange,
+                onToleranceChange = onToleranceChange,
+                modifier = Modifier.fillMaxWidth(),
+            )
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = { showCalibrationDialog = true },
@@ -129,9 +136,6 @@ fun ClinometerContent(
                 ) { Text(stringResource(R.string.calibrate)) }
                 FilledTonalButton(onClick = onToggleBeep, modifier = Modifier.weight(1f)) {
                     Text(stringResource(if (state.settings.beep) R.string.sound_on else R.string.sound_off))
-                }
-                FilledTonalButton(onClick = onCycleTolerance, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.tolerance_button, formatTolerance(state.settings.toleranceDeg)))
                 }
             }
         }
@@ -227,7 +231,13 @@ private fun statusText(state: UiState): String {
 }
 
 @Composable
-private fun TargetPanel(targetDeg: Int, onTargetChange: (Int) -> Unit, modifier: Modifier = Modifier) {
+private fun TargetPanel(
+    targetDeg: Int,
+    toleranceDeg: Double,
+    onTargetChange: (Int) -> Unit,
+    onToleranceChange: (Double) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainer) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -251,15 +261,29 @@ private fun TargetPanel(targetDeg: Int, onTargetChange: (Int) -> Unit, modifier:
                     enabled = targetDeg < MAX_TARGET,
                 ) { Icon(painterResource(R.drawable.ic_add), stringResource(R.string.increase_target)) }
             }
-            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                PRESETS.forEachIndexed { index, preset ->
-                    SegmentedButton(
-                        selected = preset == targetDeg,
-                        onClick = { onTargetChange(preset) },
-                        shape = SegmentedButtonDefaults.itemShape(index, PRESETS.size),
-                    ) { Text("$preset°", softWrap = false) }
-                }
+            ChoiceRow(PRESETS, targetDeg, onTargetChange) { "$it°" }
+            Text(stringResource(R.string.tolerance), style = MaterialTheme.typography.titleMedium)
+            ChoiceRow(TOLERANCES, toleranceDeg, onToleranceChange) {
+                stringResource(R.string.tolerance_option, formatTolerance(it))
             }
+        }
+    }
+}
+
+@Composable
+private fun <T> ChoiceRow(
+    options: List<T>,
+    selected: T,
+    onSelect: (T) -> Unit,
+    label: @Composable (T) -> String,
+) {
+    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+        options.forEachIndexed { index, option ->
+            SegmentedButton(
+                selected = option == selected,
+                onClick = { onSelect(option) },
+                shape = SegmentedButtonDefaults.itemShape(index, options.size),
+            ) { Text(label(option), softWrap = false) }
         }
     }
 }
@@ -335,7 +359,7 @@ private fun PreviewAdjusting() = ClinometerTheme {
         state = UiState(tiltDeg = 27.6, settings = Settings(targetDeg = 30)),
         sensorAvailable = true,
         snackbarHostState = remember { SnackbarHostState() },
-        onTargetChange = {}, onToggleBeep = {}, onCycleTolerance = {}, onCalibrate = {}, onResetCalibration = {},
+        onTargetChange = {}, onToggleBeep = {}, onToleranceChange = {}, onCalibrate = {}, onResetCalibration = {},
     )
 }
 
@@ -346,7 +370,7 @@ private fun PreviewOnTarget() = ClinometerTheme(darkTheme = true) {
         state = UiState(tiltDeg = 45.3, settings = Settings(targetDeg = 45), onTarget = true),
         sensorAvailable = true,
         snackbarHostState = remember { SnackbarHostState() },
-        onTargetChange = {}, onToggleBeep = {}, onCycleTolerance = {}, onCalibrate = {}, onResetCalibration = {},
+        onTargetChange = {}, onToggleBeep = {}, onToleranceChange = {}, onCalibrate = {}, onResetCalibration = {},
     )
 }
 
