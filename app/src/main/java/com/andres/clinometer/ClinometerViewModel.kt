@@ -140,7 +140,9 @@ class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
         )
         return Settings(
             targetDeg = prefs.getInt(KEY_TARGET, defaults.targetDeg).coerceIn(MIN_TARGET, MAX_TARGET),
-            toleranceDeg = prefs.getFloat(KEY_TOLERANCE, defaults.toleranceDeg.toFloat()).toDouble(),
+            // A value saved before the options changed (such as 0.5) falls back to the default.
+            toleranceDeg = prefs.getFloat(KEY_TOLERANCE, defaults.toleranceDeg.toFloat()).toDouble()
+                .takeIf { it in TOLERANCES } ?: defaults.toleranceDeg,
             beep = prefs.getBoolean(KEY_BEEP, defaults.beep),
             reference = if (reference.length > 0.5) reference else Vec3.SCREEN_UP,
         )
@@ -150,7 +152,7 @@ class ClinometerViewModel(app: Application) : AndroidViewModel(app) {
         const val MIN_TARGET = 0
         const val MAX_TARGET = 90
         val PRESETS = listOf(30, 45, 70)
-        val TOLERANCES = listOf(0.5, 1.0, 2.0)
+        val TOLERANCES = listOf(1.0, 2.0, 3.0, 4.0, 5.0)
 
         private const val CALIBRATION_SETTLE_MS = 1000L
         private const val CALIBRATION_SAMPLE_MS = 1500L

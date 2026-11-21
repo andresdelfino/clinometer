@@ -263,7 +263,8 @@ private fun TargetPanel(
             }
             ChoiceRow(PRESETS, targetDeg, onTargetChange) { "$it°" }
             Text(stringResource(R.string.tolerance), style = MaterialTheme.typography.titleMedium)
-            ChoiceRow(TOLERANCES, toleranceDeg, onToleranceChange) {
+            // Five segments leave no room for the checkmark; the fill still marks the selection.
+            ChoiceRow(TOLERANCES, toleranceDeg, onToleranceChange, checkmark = false) {
                 stringResource(R.string.tolerance_option, formatTolerance(it))
             }
         }
@@ -275,6 +276,7 @@ private fun <T> ChoiceRow(
     options: List<T>,
     selected: T,
     onSelect: (T) -> Unit,
+    checkmark: Boolean = true,
     label: @Composable (T) -> String,
 ) {
     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
@@ -283,6 +285,7 @@ private fun <T> ChoiceRow(
                 selected = option == selected,
                 onClick = { onSelect(option) },
                 shape = SegmentedButtonDefaults.itemShape(index, options.size),
+                icon = { if (checkmark) SegmentedButtonDefaults.Icon(option == selected) },
             ) { Text(label(option), softWrap = false) }
         }
     }
