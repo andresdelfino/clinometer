@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -22,16 +21,12 @@ import kotlin.math.sin
 
 /**
  * A 0°–90° protractor seen from the side of the bench: the floor runs to the right from the pivot,
- * and the needle is the bench's back pad. The dashed line marks the target, with a wedge for the
- * tolerance band.
+ * and the needle is the bench's back pad.
  */
 @Composable
 fun AngleGauge(
     angleDeg: Double?,
-    targetDeg: Int,
-    toleranceDeg: Double,
     needleColor: Color,
-    targetColor: Color,
     contentColor: Color,
     modifier: Modifier = Modifier,
 ) {
@@ -67,11 +62,6 @@ fun AngleGauge(
         val needleDeg = angleDeg?.coerceIn(0.0, 90.0)
 
         if (needleDeg != null) sector(0.0, needleDeg, needleColor.copy(alpha = 0.12f))
-        sector(
-            (targetDeg - toleranceDeg).coerceAtLeast(0.0),
-            (targetDeg + toleranceDeg).coerceAtMost(90.0),
-            targetColor.copy(alpha = 0.3f),
-        )
 
         // Outer arc, floor and vertical.
         drawArc(
@@ -92,9 +82,8 @@ fun AngleGauge(
         val labelRadius = r - 30.dp.toPx()
         val gap = 2.dp.toPx()
         labels.forEach { (deg, layout) ->
-            // Hide labels the needle or target line run through rather than draw them half-covered.
+            // Hide labels the needle runs through rather than draw them half-covered.
             if (needleDeg != null && abs(deg - needleDeg) < 4.0) return@forEach
-            if (abs(deg - targetDeg) < 4) return@forEach
             val w = layout.size.width
             val h = layout.size.height
             val p = pointAt(deg.toDouble(), labelRadius)
@@ -102,16 +91,6 @@ fun AngleGauge(
             val cy = p.y.coerceAtMost(origin.y - h / 2f - gap)
             drawText(layout, color = contentColor.copy(alpha = 0.7f), topLeft = Offset(cx - w / 2f, cy - h / 2f))
         }
-
-        // Target line.
-        drawLine(
-            color = targetColor,
-            start = origin,
-            end = pointAt(targetDeg.toDouble(), r),
-            strokeWidth = 2.5.dp.toPx(),
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10.dp.toPx(), 7.dp.toPx())),
-        )
-        drawCircle(targetColor, radius = 5.dp.toPx(), center = pointAt(targetDeg.toDouble(), r))
 
         // Needle (the back pad) and its pivot.
         if (needleDeg != null) {

@@ -1,7 +1,6 @@
 package com.andres.clinometer
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.math.cos
@@ -64,17 +63,6 @@ class TiltMathTest {
         assertEquals(45.0, TiltMath.angleBetweenDeg(reading, reference), 1e-9)
         // Without calibration the bump would add error.
         assertTrue(kotlin.math.abs(TiltMath.angleBetweenDeg(reading, Vec3.SCREEN_UP) - 45.0) > 1.0)
-    }
-
-    @Test
-    fun onTargetUsesHysteresis() {
-        assertTrue(TiltMath.isOnTarget(30.9, 30.0, 1.0, wasOnTarget = false))
-        assertFalse(TiltMath.isOnTarget(31.2, 30.0, 1.0, wasOnTarget = false))
-        // Once on target, small drift past the tolerance doesn't toggle it off...
-        assertTrue(TiltMath.isOnTarget(31.2, 30.0, 1.0, wasOnTarget = true))
-        // ...but leaving the hysteresis band does.
-        assertFalse(TiltMath.isOnTarget(31.4, 30.0, 1.0, wasOnTarget = true))
-        assertTrue(TiltMath.isOnTarget(28.8, 30.0, 1.0, wasOnTarget = true))
     }
 
     @Test

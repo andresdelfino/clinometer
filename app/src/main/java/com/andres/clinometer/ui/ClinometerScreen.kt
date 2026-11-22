@@ -1,6 +1,5 @@
 package com.andres.clinometer.ui
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -15,9 +14,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -33,7 +29,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
@@ -45,15 +40,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.andres.clinometer.ClinometerViewModel
-import com.andres.clinometer.ClinometerViewModel.Companion.PRESETS
-import com.andres.clinometer.ClinometerViewModel.Companion.TOLERANCES
 import com.andres.clinometer.R
 import com.andres.clinometer.Settings
 import com.andres.clinometer.UiState
 import com.andres.clinometer.ui.theme.ClinometerTheme
-import com.andres.clinometer.ui.theme.customColors
 import java.util.Locale
-import kotlin.math.abs
 
 @Composable
 fun ClinometerScreen(viewModel: ClinometerViewModel) {
@@ -73,8 +64,6 @@ fun ClinometerScreen(viewModel: ClinometerViewModel) {
         state = state,
         sensorAvailable = viewModel.sensorAvailable,
         snackbarHostState = snackbarHostState,
-        onTargetChange = viewModel::setTarget,
-        onToleranceChange = viewModel::setTolerance,
         onCalibrate = viewModel::calibrate,
         onResetCalibration = viewModel::resetCalibration,
     )
@@ -85,8 +74,6 @@ fun ClinometerContent(
     state: UiState,
     sensorAvailable: Boolean,
     snackbarHostState: SnackbarHostState,
-    onTargetChange: (Int) -> Unit,
-    onToleranceChange: (Double) -> Unit,
     onCalibrate: () -> Unit,
     onResetCalibration: () -> Unit,
 ) {
@@ -108,13 +95,6 @@ fun ClinometerContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             ReadingPanel(state, Modifier.fillMaxWidth().weight(1f))
-            TargetPanel(
-                targetDeg = state.settings.targetDeg,
-                toleranceDeg = state.settings.toleranceDeg,
-                onTargetChange = onTargetChange,
-                onToleranceChange = onToleranceChange,
-                modifier = Modifier.fillMaxWidth(),
-            )
             OutlinedButton(
                 onClick = { showCalibrationDialog = true },
                 enabled = !state.calibrating,
@@ -136,44 +116,25 @@ fun ClinometerContent(
 @Composable
 private fun ReadingPanel(state: UiState, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
-    val custom = MaterialTheme.customColors
-    // One animation drives every colour: off target at 0, on target at 1.
-    val f by animateFloatAsState(if (state.onTarget) 1f else 0f, label = "onTarget")
-    val container = lerp(scheme.surfaceContainerHigh, custom.success, f)
-    val content = lerp(scheme.onSurface, custom.onSuccess, f)
-    val contentVariant = lerp(scheme.onSurfaceVariant, custom.onSuccess, f)
-    val needle = lerp(scheme.primary, custom.onSuccess, f)
-    val target = lerp(scheme.tertiary, custom.onSuccess, f)
 
-    Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = container, contentColor = content) {
+    Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = scheme.surfaceContainerHigh) {
         Column(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AngleGauge(
                 angleDeg = state.tiltDeg,
-                targetDeg = state.settings.targetDeg,
-                toleranceDeg = state.settings.toleranceDeg,
-                needleColor = needle,
-                targetColor = target,
-                contentColor = content,
+                needleColor = scheme.primary,
+                contentColor = scheme.onSurface,
                 modifier = Modifier.fillMaxWidth().weight(1f),
             )
             BigAngle(state.tiltDeg)
+            // Laid out even when empty, so the gauge doesn't resize as the message comes and goes.
             Text(
-                text = statusText(state),
+                text = statusText(state).orEmpty(),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
-            )
-            Text(
-                text = stringResource(
-                    R.string.target_summary,
-                    state.settings.targetDeg,
-                    formatTolerance(state.settings.toleranceDeg),
-                ),
-                style = MaterialTheme.typography.bodyMedium,
-                color = contentVariant,
             )
         }
     }
@@ -199,57 +160,10 @@ private fun BigAngle(angleDeg: Double?) {
 }
 
 @Composable
-private fun statusText(state: UiState): String {
-    val tilt = state.tiltDeg
-    return when {
-        state.calibrating -> stringResource(R.string.hold_still)
-        tilt == null -> stringResource(R.string.waiting_for_sensor)
-        state.onTarget -> stringResource(R.string.on_target)
-        else -> {
-            val delta = tilt - state.settings.targetDeg
-            stringResource(if (delta < 0) R.string.too_flat else R.string.too_steep, abs(delta))
-        }
-    }
-}
-
-@Composable
-private fun TargetPanel(
-    targetDeg: Int,
-    toleranceDeg: Double,
-    onTargetChange: (Int) -> Unit,
-    onToleranceChange: (Double) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(modifier, shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceContainer) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.target), style = MaterialTheme.typography.titleMedium)
-            ChoiceRow(PRESETS, targetDeg, onTargetChange) { "$it°" }
-            Text(stringResource(R.string.tolerance), style = MaterialTheme.typography.titleMedium)
-            ChoiceRow(TOLERANCES, toleranceDeg, onToleranceChange) {
-                stringResource(R.string.tolerance_option, formatTolerance(it))
-            }
-        }
-    }
-}
-
-@Composable
-private fun <T> ChoiceRow(
-    options: List<T>,
-    selected: T,
-    onSelect: (T) -> Unit,
-    label: @Composable (T) -> String,
-) {
-    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-        options.forEachIndexed { index, option ->
-            SegmentedButton(
-                selected = option == selected,
-                onClick = { onSelect(option) },
-                shape = SegmentedButtonDefaults.itemShape(index, options.size),
-                // No checkmark: the fill marks the selection, and the label keeps the full width.
-                icon = {},
-            ) { Text(label(option), softWrap = false) }
-        }
-    }
+private fun statusText(state: UiState): String? = when {
+    state.calibrating -> stringResource(R.string.hold_still)
+    state.tiltDeg == null -> stringResource(R.string.waiting_for_sensor)
+    else -> null
 }
 
 @Composable
@@ -302,28 +216,25 @@ private fun KeepScreenOn() {
 private fun formatAngle(deg: Double?): String =
     deg?.let { String.format(Locale.getDefault(), "%.1f°", it) } ?: "––.–°"
 
-private fun formatTolerance(deg: Double): String =
-    if (deg % 1.0 == 0.0) deg.toInt().toString() else String.format(Locale.getDefault(), "%.1f", deg)
-
-@Preview(name = "Adjusting", showBackground = true, widthDp = 380, heightDp = 800)
+@Preview(name = "Light", showBackground = true, widthDp = 380, heightDp = 800)
 @Composable
-private fun PreviewAdjusting() = ClinometerTheme {
+private fun PreviewLight() = ClinometerTheme {
     ClinometerContent(
-        state = UiState(tiltDeg = 27.6, settings = Settings(targetDeg = 30)),
+        state = UiState(tiltDeg = 27.6),
         sensorAvailable = true,
         snackbarHostState = remember { SnackbarHostState() },
-        onTargetChange = {}, onToleranceChange = {}, onCalibrate = {}, onResetCalibration = {},
+        onCalibrate = {}, onResetCalibration = {},
     )
 }
 
-@Preview(name = "On target", showBackground = true, widthDp = 380, heightDp = 800)
+@Preview(name = "Dark", showBackground = true, widthDp = 380, heightDp = 800)
 @Composable
-private fun PreviewOnTarget() = ClinometerTheme(darkTheme = true) {
+private fun PreviewDark() = ClinometerTheme(darkTheme = true) {
     ClinometerContent(
-        state = UiState(tiltDeg = 45.3, settings = Settings(targetDeg = 45), onTarget = true),
+        state = UiState(tiltDeg = 45.3),
         sensorAvailable = true,
         snackbarHostState = remember { SnackbarHostState() },
-        onTargetChange = {}, onToleranceChange = {}, onCalibrate = {}, onResetCalibration = {},
+        onCalibrate = {}, onResetCalibration = {},
     )
 }
 

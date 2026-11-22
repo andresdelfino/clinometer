@@ -1,6 +1,5 @@
 package com.andres.clinometer
 
-import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
@@ -30,9 +29,6 @@ data class Vec3(val x: Double, val y: Double, val z: Double) {
 }
 
 object TiltMath {
-    /** Once on target, the reading must drift this much past the tolerance to count as off target. */
-    const val HYSTERESIS_DEG = 0.3
-
     /**
      * Angle between two vectors, in degrees (0..180).
      *
@@ -43,11 +39,6 @@ object TiltMath {
      */
     fun angleBetweenDeg(a: Vec3, b: Vec3): Double =
         Math.toDegrees(atan2((a cross b).length, a dot b))
-
-    fun isOnTarget(tiltDeg: Double, targetDeg: Double, toleranceDeg: Double, wasOnTarget: Boolean): Boolean {
-        val limit = if (wasOnTarget) toleranceDeg + HYSTERESIS_DEG else toleranceDeg
-        return abs(tiltDeg - targetDeg) <= limit
-    }
 
     /** Largest angular distance of any sample from [mean]; used to reject calibrations where the phone moved. */
     fun maxDeviationDeg(samples: List<Vec3>, mean: Vec3): Double =

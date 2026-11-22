@@ -5,14 +5,7 @@
     <string name="no_sensor">This device has no accelerometer, so it can\'t measure tilt.</string>
     <string name="waiting_for_sensor">Reading sensor…</string>
     <string name="hold_still">Hold still…</string>
-    <string name="on_target">On target</string>
-    <string name="too_flat">%1$.1f° too flat</string>
-    <string name="too_steep">%1$.1f° too steep</string>
-    <string name="target_summary">Target %1$d° ± %2$s°</string>
 
-    <string name="target">Target</string>
-    <string name="tolerance">Tolerance</string>
-    <string name="tolerance_option">± %1$s°</string>
     <string name="calibrate">Calibrate</string>
 
     <string name="calibrate_title">Calibrate zero</string>
